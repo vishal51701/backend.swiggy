@@ -1,43 +1,34 @@
 const express = require('express');
-const dotEnv = require("dotenv");
+const serverless = require('serverless-http');
+const dotenv = require("dotenv");
 const mongoose = require('mongoose');
 const bodyparser = require('body-parser');
 const Vendorrouter = require('./routes/Vendorrouter');
-const FirmRoutes=require('./routes/FirmRoute');
-const productRoutes=require('./routes/ProductsRoutes')
-const serverless=require('serverless-http')
-const path=require('path')
+const FirmRoutes = require('./routes/FirmRoute');
+const productRoutes = require('./routes/ProductsRoutes');
+
+dotenv.config();
+
 const app = express();
-const PORT = process.env.PORT||4000;
 
-dotEnv.config();
-
+// Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI)
-.then(() => { 
-    console.log("mongo db connected successfully");
-})
-.catch((error) => {
-    console.log(error);
-});
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch((error) => console.error(error));
 
-
-// app.use(express.json());
-
-// MIDDLEWARE ORDER IS IMPORTANT
+// Middleware
 app.use(bodyparser.json());
 app.use('/Vendor', Vendorrouter);
-app.use('/Firm',FirmRoutes)
+app.use('/Firm', FirmRoutes);
 app.use('/product', productRoutes);
-app.use('/uploads',express.static('uploads')) 
+app.use('/uploads', express.static('uploads'));
 
-
-app.listen(PORT, () => {
-    console.log(`server started and running at ${PORT}`);
+// Sample route
+app.get('/home', (req, res) => {
+  res.send("<h1>Welcome to my swiggy page</h1>");
 });
 
-app.use('/home', (req, res) => {
-    res.send("<h1>welcome to my swiggy page");
-});
+// Important: No app.listen()
 
 module.exports = app;
 module.exports.handler = serverless(app);
