@@ -5,6 +5,7 @@ const bodyparser = require('body-parser');
 const Vendorrouter = require('./routes/Vendorrouter');
 const FirmRoutes=require('./routes/FirmRoute');
 const productRoutes=require('./routes/ProductsRoutes')
+const serverless=require('serverless-http')
 const path=require('path')
 const app = express();
 const PORT = process.env.PORT||4000;
@@ -37,3 +38,6 @@ app.listen(PORT, () => {
 app.use('/home', (req, res) => {
     res.send("<h1>welcome to my swiggy page");
 });
+
+module.exports = app;
+module.exports.handler = serverless(app);
