@@ -3,7 +3,9 @@ const productcontroller = require('../controllers/Productcontroller');
 
 const router = express.Router();
 
+
 router.post('/add-product/:firmId', productcontroller.addproduct);
+
 router.get('/:firmId/products', productcontroller.getproductByfirm);
 
 router.get('/uploads/:imageName', (req, res) => {

@@ -16,11 +16,20 @@ const upload = multer({ storage: storage });
 
 const addproduct = async (req, res) => {
     try {
-        const { productname, price, category, bestseller, desription } = req.body;
+      const { productname, price, category, bestseller, description} = req.body;
+
         const image = req.file ? req.file.filename : undefined;
 
-        const firmId = req.params.firmId.trim();
-const firm = await Firm.findById(firmId);  
+        const firmIdRaw = req.params.firmId;
+if (!firmIdRaw) {
+  return res.status(400).json({ error: "firmId param missing" });
+}
+const firmId = firmIdRaw.trim();
+
+const firm = await Firm.findOne({ _id: firmId }); // ✅ Use from req.params
+
+console.log("firmId from request body:", req.params.firmId);
+
 
         if (!firm) {
             return res.status(404).json({ error: 'no firm found' });
@@ -29,7 +38,7 @@ const firm = await Firm.findById(firmId);
 
 
         const product = new Product({
-            productname, price, category, bestseller, desription, image, firm: firm._id
+            productname, price, category, bestseller, description, image, firm: firm._id
         });
         const savedproduct = await product.save();
         firm.products.push(savedproduct);
@@ -46,7 +55,12 @@ const firm = await Firm.findById(firmId);
 
 const getproductByfirm = async (req, res) => {
     try {
-        const firmId = req.params.firmId.trim(); 
+        const firmIdRaw = req.params.firmId;
+if (!firmIdRaw) {
+  return res.status(400).json({ error: "firmId param missing" });
+}
+const firmId = firmIdRaw.trim();
+
         const firm = await Firm.findById(firmId);
 
         if (!firm) {
@@ -75,6 +89,8 @@ try {
         return res.status(404).json({error:"no product found"})
 
     }
+    res.status(200).json({ message: "Product deleted successfully" });//=================================>
+
 } catch (error) {
     console.error(error);
         res.status(500).json({ error: "internal server error" });

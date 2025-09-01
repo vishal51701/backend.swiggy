@@ -14,7 +14,7 @@ const firmschema = new mongoose.Schema({
     category: [
         {
             type: String,
-            enum: ['veg', 'nonVeg']
+            enum: ['veg', 'nonveg']
         }
     ],
     region: [
@@ -36,12 +36,9 @@ const firmschema = new mongoose.Schema({
         }
     ],
 
-    products: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Product'
-        }
-    ]
+   products: [{ type: mongoose.Schema.Types.ObjectId, ref: "product" }]
+   
+
 });
 
 

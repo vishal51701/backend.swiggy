@@ -38,9 +38,9 @@ const vendorlogin = async (req, res) => {
             return res.status(404).json({ error: 'email or paswword unmatched' });
         }
 
-        const token=jwt.sign({vendorid:vendor._id},secretekey,{expiresIn:'7d'})
-
-        res.status(200).json({ success: 'login success',token });
+        const token=jwt.sign({vendorid:vendor._id},secretekey,{expiresIn:'10d'})
+const vendorId=vendor._id;
+        res.status(200).json({ success: 'login success',token,vendorId});
         console.log(email,"this is token",token);
         console.log('login success');
     }
@@ -65,19 +65,37 @@ const vendorsgetbyid = async (req, res) => {
   const vendorid = req.params.id;
 
   try {
-    const vendor = await Vendor.findById(vendorid).populate('firm');
-    if (!vendor) {
-      return res.status(404).json({ error: 'vendor not found' });
-    }
-    return res.json({ vendor });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+  const vendor = await Vendor.findById(vendorid).populate('firm');
+  if (!vendor) {
+    return res.status(404).json({ error: 'Vendor not found' });
   }
-};
 
+  const vendorObject = vendor.toObject(); // flatten first
 
+// Handle both array and object cases
+let vendorFirmId = null;
 
+if (Array.isArray(vendorObject.firm)) {
+  vendorFirmId = vendorObject.firm?.[0]?._id || null;
+} else if (vendorObject.firm && typeof vendorObject.firm === 'object') {
+  vendorFirmId = vendorObject.firm._id || vendorObject.firm;
+}
 
+console.log("Vendor firm data:", vendor.firm); // ✅ Debug log
+console.log("vendorFirmId:", vendorFirmId);
+console.log("vendor:", vendor);
 
+  res.status(200).json({
+    vendor: {
+      ...vendorObject,
+      vendorFirmId
+    }
+  });
+
+} catch (error) {
+  console.error(error);
+  res.status(500).json({ error: 'Internal server error' });
+}
+
+}
 module.exports = { vendorregister,vendorlogin,getallvendors,vendorsgetbyid };

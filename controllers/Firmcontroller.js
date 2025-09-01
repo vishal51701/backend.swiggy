@@ -1,14 +1,14 @@
 const Firm = require('../models/Firm');
 const Vendor = require('../models/Vendors'); // Make sure this is capital "V"
-
+const path=require('path')
 const multer = require('multer');
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/'); // Destination folder where the uploaded images will be stored
+        cb(null, 'uploads/'); 
     },
     filename: function (req, file, cb) {
-        cb(null, Date.now() + Path.extname(file.originalname)); // Generating a unique filename
+        cb(null, Date.now() + path.extname(file.originalname)); // Generating a unique filename
     }
 });
 
@@ -26,6 +26,10 @@ const addFirm = async (req, res) => {
             return res.status(404).json({ message: 'vendor not found' }); // Fix typo in message
         }
 
+   if (vendor.firm.length > 0) {
+  return res.status(400).json({ message: 'vendor can add only ONE firm' });
+}
+
         const firm = new Firm({
             firmname,
             area,
@@ -37,10 +41,13 @@ const addFirm = async (req, res) => {
         });
 
        const savedfirm= await firm.save();
-       vendor.firm.push(savedfirm)
-       await vendor.save()
+       const firmId=savedfirm._id;
+      vendor.firm.push(savedfirm);
+await vendor.save();
 
-        return res.status(200).json({ message: 'firm added successfully' });
+
+
+        return res.status(200).json({ message: 'firm added successfully',firmId });
 
     } catch (error) {
         console.error(error);
@@ -50,7 +57,7 @@ const addFirm = async (req, res) => {
 
 const deleteFirmByid=async(req,res)=>{
 try {
-    const FirmId=req.params.FirmId;
+    const FirmId=req.params.firmId;
 
     const deletedFirm=await Firm.findByIdAndDelete(FirmId)
 
